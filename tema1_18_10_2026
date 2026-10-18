@@ -1,0 +1,76 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+struct Pictura 
+{
+    char* titlu;
+    char* pictor;
+    float pret;
+};
+
+void afisarePictura(Pictura p);
+
+float calculPretMediu(Pictura picturi[], int dim) 
+{
+    float suma=0;
+
+    for (int i=0; i<dim; i++) 
+    {
+        suma += picturi[i].pret;
+    }
+
+    if (dim>0) 
+    {
+        return suma/dim;
+    }
+
+    return 0;
+}
+
+int main() 
+{
+    cout << "Licitatia de picturi\n";
+
+    Pictura picturi[3];
+
+    picturi[0].titlu = new char[strlen("Noapte instelata") + 1];
+    strcpy(picturi[0].titlu, "Noapte instelata");
+    picturi[0].pictor = new char[strlen("Vincent van Gogh") + 1];
+    strcpy(picturi[0].pictor, "Vincent van Gogh");
+    picturi[0].pret = 15000;
+
+    picturi[1].titlu = new char[strlen("Mona Lisa") + 1];
+    strcpy(picturi[1].titlu, "Mona Lisa");
+    picturi[1].pictor = new char[strlen("Leonardo da Vinci") + 1];
+    strcpy(picturi[1].pictor, "Leonardo da Vinci");
+    picturi[1].pret = 25000;
+
+    picturi[2].titlu = new char[strlen("Sarutul") + 1];
+    strcpy(picturi[2].titlu, "Sarutul");
+    picturi[2].pictor = new char[strlen("Gustav Klimt") + 1];
+    strcpy(picturi[2].pictor, "Gustav Klimt");
+    picturi[2].pret = 20000;
+
+    for (int i = 0; i < 3; i++) {
+        afisarePictura(picturi[i]);
+    }
+
+    cout << "\nPretul mediu al picturilor este: "
+         << calculPretMediu(picturi, 3) << " lei\n";
+
+    for (int i = 0; i < 3; i++) 
+    {
+        delete[] picturi[i].titlu;
+        delete[] picturi[i].pictor;
+    }
+
+    return 0;
+}
+
+void afisarePictura(Pictura p) {
+    cout << "\nTitlu: " << p.titlu;
+    cout << "\nPictor: " << p.pictor;
+    cout << "\nPret: " << p.pret << " lei\n";
+}

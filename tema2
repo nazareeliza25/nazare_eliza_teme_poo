@@ -1,0 +1,150 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Librarie
+{
+private:
+    const int id;
+    string denumire;
+    int nr_carti;
+    float* vector_preturi_carti;
+
+public:
+    static int nr_librarii;
+
+    // Constructor fara parametri
+    Librarie() : id(++nr_librarii)
+    {
+        this->denumire = "Default";
+        this->nr_carti = 0;
+        this->vector_preturi_carti = nullptr;
+    }
+
+    // Constructor cu parametri
+    Librarie(int id, string denumire, int nr_carti, float* vector_preturi_carti)
+        : id(++nr_librarii)
+    {
+        this->denumire = denumire;
+        this->nr_carti = nr_carti;
+        this->vector_preturi_carti = new float[nr_carti];
+
+        for (int i = 0; i < this->nr_carti; i++)
+        {
+            this->vector_preturi_carti[i] = vector_preturi_carti[i];
+        }
+    }
+
+    void afisare_librarie()
+    {
+        cout << endl << "Id: " << this->id;
+        cout << endl << "Denumire librarie: " << this->denumire;
+        cout << endl << "Nr carti: " << this->nr_carti;
+
+        if (this->nr_carti > 0)
+        {
+            cout << endl << "Pret per carte: ";
+            for (int i = 0; i < this->nr_carti - 1; i++)
+            {
+                cout << this->vector_preturi_carti[i] << ",";
+            }
+            cout << this->vector_preturi_carti[this->nr_carti - 1] << ".";
+        }
+    }
+
+    int get_nr_carti()
+    {
+        return this->nr_carti;
+    }
+
+    void set_nr_carti(int nr_carti_nou)
+    {
+        if (nr_carti_nou >= 0)
+            this->nr_carti = nr_carti_nou;
+        else
+            throw "Valoare negativa";
+    }
+
+    float* get_vector_preturi_carti()
+    {
+        float* vector_preturi_carti_nou = new float[this->nr_carti];
+        for (int i = 0; i < this->nr_carti; i++)
+        {
+            vector_preturi_carti_nou[i] = this->vector_preturi_carti[i];
+        }
+        return vector_preturi_carti_nou;
+    }
+
+    void set_vector_preturi_carti(float* vector, int nrc)
+    {
+        set_nr_carti(nrc);
+        if (this->vector_preturi_carti != nullptr)
+        {
+            delete[] this->vector_preturi_carti;
+        }
+        this->vector_preturi_carti = new float[this->nr_carti];
+        for (int i = 0; i < this->nr_carti; i++)
+        {
+            this->vector_preturi_carti[i] = vector[i];
+        }
+        delete[] vector;
+    }
+    void set_denumire(string denumire_noua)
+    {
+        this->denumire = denumire_noua;
+    }
+
+    // Destructor
+    ~Librarie()
+    {
+        if (this->vector_preturi_carti != nullptr)
+            delete[] this->vector_preturi_carti;
+    }
+};
+
+// Initializare atribut static
+int Librarie::nr_librarii = 0;
+
+int main()
+{
+    Librarie lCarturesti;
+    lCarturesti.set_denumire("Carturesti");
+    lCarturesti.afisare_librarie();
+    try
+    {
+        lCarturesti.set_nr_carti(-5);
+    }
+    catch (int cod)
+    {
+        cout << endl << cod;
+    }
+    catch (const char* mesaj)
+    {
+        cout << endl << mesaj;
+    }
+    catch (...)
+    {
+        cout << endl << "Nr carti negativ";
+    }
+    cout << endl << "Noul numar de carti este: "<< lCarturesti.get_nr_carti();
+    lCarturesti.set_vector_preturi_carti(new float[3] { 45, 60, 32 }, 3);
+    float* vector = lCarturesti.get_vector_preturi_carti();
+    cout << endl << "Noile preturi sunt: ";
+    for (int i = 0; i < 3; i++)
+    {
+        cout << vector[i] << " lei, ";
+    }
+
+    vector[0] = 100;
+    cout << endl << "Primul pret din copie: " << vector[0];
+    lCarturesti.afisare_librarie();
+    delete[] vector;
+    
+    float vector_preturi_carti[2] = { 75, 28 };
+    Librarie* pHumanitas = new Librarie(2, "Humanitas", 2, vector_preturi_carti);
+    pHumanitas->afisare_librarie();
+    delete pHumanitas;
+    cout << endl << "Am vizitat "<< Librarie::nr_librarii << " librarii.";
+}

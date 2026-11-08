@@ -1,0 +1,225 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <string>
+using namespace std;
+
+enum tip_aeroport { INTERN = 1, INTERNATIONAL = 2 };
+
+class Aeroport {
+private:
+	const int id;
+	string denumire;
+	tip_aeroport tip;
+	int nr_porti;
+	float* vector_taxe;
+
+public:
+	
+	Aeroport() : id(1) {
+		this->denumire = "Default";
+		this->nr_porti = 0;
+		this->tip = INTERN;
+		this->vector_taxe = nullptr;
+	}
+
+	
+	Aeroport(int id, string denumire, tip_aeroport tip, int nr_porti, float* vector_taxe) : id(id) 
+	{
+		this->denumire = denumire;
+		this->tip = tip;
+		this->nr_porti = nr_porti;
+
+		
+		if (this->nr_porti > 0 && vector_taxe != nullptr) {
+			
+			this->vector_taxe = new float[this->nr_porti];
+
+			
+			for (int i = 0; i < this->nr_porti; i++) {
+				this->vector_taxe[i] = vector_taxe[i];
+			}
+		}
+		else {
+			
+			this->vector_taxe = nullptr;
+		}
+	}
+
+	Aeroport(const Aeroport& a) : id(a.id) {
+		this->denumire = a.denumire;
+		this->nr_porti = a.nr_porti;
+		this->tip = a.tip;
+
+		if (a.vector_taxe != nullptr) {
+			this->vector_taxe = new float[a.nr_porti];
+			for (int i = 0; i < a.nr_porti; i++) {
+				this->vector_taxe[i] = a.vector_taxe[i];
+			}
+		}
+		else {
+			this->vector_taxe = nullptr;
+		}
+	}
+
+	void operator=(const Aeroport& a) {
+		
+
+		this->denumire = a.denumire;
+		this->nr_porti = a.nr_porti;
+		this->tip = a.tip;
+
+		if (this->vector_taxe != nullptr) {
+			delete[] this->vector_taxe;
+			this->vector_taxe = nullptr;
+		}
+
+		if (a.vector_taxe != nullptr) {
+			this->vector_taxe = new float[a.nr_porti];
+			for (int i = 0; i < a.nr_porti; i++) {
+				this->vector_taxe[i] = a.vector_taxe[i];
+			}
+		}
+		else {
+			this->vector_taxe = nullptr;
+		}
+		
+	}
+
+	
+	void afisare_aeroport() {
+		cout << endl << "Id: " << this->id;
+		cout << endl << "Denumire: " << this->denumire;
+		cout << endl << "Nr porti: " << this->nr_porti;
+		cout << endl << "Tip: ";
+		if (this->tip == 1) {
+			cout << "INTERNATIONAL";
+		}
+		else {
+			cout << "INTERN";
+		}
+
+		if (this->nr_porti > 0 && this->vector_taxe != nullptr) {
+			cout << endl << "Taxe per poarta: ";
+			for (int i = 0; i < this->nr_porti - 1; i++) {
+				cout << this->vector_taxe[i] << ", ";
+			}
+			cout << this->vector_taxe[this->nr_porti - 1] << ".";
+		}
+		cout << endl;
+	}
+
+	
+	int get_nr_porti() {
+		return this->nr_porti;
+	}
+
+	void set_nr_porti(int nr_porti_nou) {
+		if (nr_porti_nou >= 0) {
+			this->nr_porti = nr_porti_nou;
+		}
+		else {
+			throw "Valoare negativa";
+		}
+	}
+
+	
+	float* get_vector_taxe() {
+		if (this->nr_porti <= 0 || this->vector_taxe == nullptr)
+		{
+			return nullptr;
+		}
+		float* vector_taxe_nou = new float[this->nr_porti];
+		for (int i = 0; i < this->nr_porti; i++) {
+			vector_taxe_nou[i] = this->vector_taxe[i];
+		}
+		return vector_taxe_nou;
+	}
+
+	void set_vector_taxe(float* vector, int nrP) {
+		set_nr_porti(nrP);
+
+		if (this->vector_taxe != nullptr) {
+			delete[] this->vector_taxe;
+			this->vector_taxe = nullptr;
+		}
+
+		if (nrP > 0 && vector != nullptr) {
+			this->vector_taxe = new float[this->nr_porti];
+			for (int i = 0; i < this->nr_porti; i++) {
+				this->vector_taxe[i] = vector[i];
+			}
+		}
+		else {
+			this->vector_taxe = nullptr;
+		}
+
+		delete[] vector;
+	}
+
+	// Destructor
+	~Aeroport() {
+		if (this->vector_taxe != nullptr) {
+			delete[] this->vector_taxe;
+			this->vector_taxe = nullptr;
+		}
+	}
+
+	
+	bool operator<(const Aeroport& a) {
+		return this->nr_porti < a.nr_porti;
+	}
+};
+
+int main() {
+	Aeroport aOtopeni;
+	aOtopeni.afisare_aeroport();
+
+	try
+	{
+		aOtopeni.set_nr_porti(-1);
+	}
+	catch (int cod)
+	{
+		cout << endl << cod;
+	}
+	catch (const char* mesaj)
+	{
+		cout << endl << mesaj;
+	}
+	catch (...)
+	{
+		cout << endl << "Nr de porti negativ";
+	}
+	cout << endl << "Noul numar de porti este: " << aOtopeni.get_nr_porti();
+	aOtopeni.set_vector_taxe(new float[3] { 50, 75, 90 }, 3);
+	float* vector = aOtopeni.get_vector_taxe();
+	cout << endl << "Noile preturi sunt: ";
+	for (int i = 0; i < 3; i++)
+	{
+		cout << vector[i] << " lei, ";
+	}
+
+	
+	aOtopeni.afisare_aeroport();
+	delete[] vector;
+
+	float vector_taxe[2] = { 75, 55 };
+	Aeroport* pCluj = new Aeroport(10, "Avram Iancu", INTERNATIONAL, 3, vector_taxe);
+	pCluj->afisare_aeroport();
+
+	Aeroport aTimisoara = *pCluj;
+	aTimisoara.afisare_aeroport();
+	
+	if (aOtopeni < aTimisoara)
+	{
+		cout << endl << "Aeroportul Otopeni are mai putine porti decat Timisoara!";
+	}
+	else {
+		cout << endl << "Aeroportul Timisoara are mai putine porti sau egale!";
+	}
+
+	delete pCluj;
+
+	
+}
+

@@ -1,0 +1,349 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+enum Zona { CENTRALA = 1, PERIFERICA = 2 };
+
+class Mall {
+private:
+    const int id;
+    float suprafata;
+    string denumire;
+    Zona zona;
+    int nrMagazine;
+    float* vectorChirii;
+
+public:
+    static int nrMalluri;
+
+    Mall() : id(++nrMalluri) {
+        this->denumire = "Default";
+        this->suprafata = 0;
+        this->zona = PERIFERICA;
+        this->nrMagazine = 0;
+        this->vectorChirii = nullptr;
+    }
+
+    Mall(int id, float suprafata, string denumire,
+         Zona zona, int nrMagazine, float* vectorChirii)
+        : id(id) {
+
+        this->suprafata = suprafata;
+        this->denumire = denumire;
+        this->zona = zona;
+        this->nrMagazine = nrMagazine;
+
+        if (vectorChirii != nullptr && nrMagazine > 0) {
+            this->vectorChirii = new float[nrMagazine];
+
+            for (int i = 0; i < nrMagazine; i++) {
+                this->vectorChirii[i] = vectorChirii[i];
+            }
+        }
+        else {
+            this->vectorChirii = nullptr;
+        }
+
+        nrMalluri++;
+    }
+
+    Mall(const Mall& m) : id(++nrMalluri) {
+        this->suprafata = m.suprafata;
+        this->denumire = m.denumire;
+        this->zona = m.zona;
+        this->nrMagazine = m.nrMagazine;
+
+        if (m.vectorChirii != nullptr) {
+            this->vectorChirii = new float[m.nrMagazine];
+
+            for (int i = 0; i < m.nrMagazine; i++) {
+                this->vectorChirii[i] = m.vectorChirii[i];
+            }
+        }
+        else {
+            this->vectorChirii = nullptr;
+        }
+    }
+
+    Mall& operator=(const Mall& m) {
+        if (this != &m) {
+            this->suprafata = m.suprafata;
+            this->denumire = m.denumire;
+            this->zona = m.zona;
+            this->nrMagazine = m.nrMagazine;
+
+            if (this->vectorChirii != nullptr) {
+                delete[] this->vectorChirii;
+                this->vectorChirii = nullptr;
+            }
+
+            if (m.vectorChirii != nullptr) {
+                this->vectorChirii = new float[m.nrMagazine];
+
+                for (int i = 0; i < m.nrMagazine; i++) {
+                    this->vectorChirii[i] = m.vectorChirii[i];
+                }
+            }
+        }
+
+        return *this;
+    }
+
+    void afisareMall() {
+        cout << endl << "Id: " << this->id;
+        cout << endl << "Denumire: " << this->denumire;
+        cout << endl << "Suprafata: " << this->suprafata << " mp";
+        cout << endl << "Nr magazine: " << this->nrMagazine;
+
+        cout << endl << "Zona: ";
+
+        if (this->zona == CENTRALA) {
+            cout << "CENTRALA";
+        }
+        else {
+            cout << "PERIFERICA";
+        }
+
+        if (this->nrMagazine > 0 && this->vectorChirii != nullptr) {
+            cout << endl << "Vector chirii: ";
+
+            for (int i = 0; i < this->nrMagazine - 1; i++) {
+                cout << this->vectorChirii[i] << ", ";
+            }
+
+            cout << this->vectorChirii[this->nrMagazine - 1] << ".";
+        }
+    }
+
+    int getNrMagazine() {
+        return this->nrMagazine;
+    }
+
+    void setNrMagazine(int nrMagazineNou) {
+        if (nrMagazineNou >= 0) {
+            this->nrMagazine = nrMagazineNou;
+        }
+        else {
+            throw "Valoare negativa";
+        }
+    }
+
+    float* getVectorChirii() {
+        if (this->vectorChirii == nullptr) {
+            return nullptr;
+        }
+
+        float* vectorNou = new float[this->nrMagazine];
+
+        for (int i = 0; i < this->nrMagazine; i++) {
+            vectorNou[i] = this->vectorChirii[i];
+        }
+
+        return vectorNou;
+    }
+
+    void setVectorChirii(float* vector, int nrM) {
+        if (nrM < 0) {
+            throw "Numar negativ de magazine";
+        }
+
+        if (this->vectorChirii != nullptr) {
+            delete[] this->vectorChirii;
+            this->vectorChirii = nullptr;
+        }
+
+        this->nrMagazine = nrM;
+
+        if (vector != nullptr && nrM > 0) {
+            this->vectorChirii = new float[nrM];
+
+            for (int i = 0; i < nrM; i++) {
+                this->vectorChirii[i] = vector[i];
+            }
+        }
+        else {
+            this->vectorChirii = nullptr;
+        }
+    }
+
+    ~Mall() {
+        if (this->vectorChirii != nullptr) {
+            delete[] this->vectorChirii;
+        }
+    }
+
+    bool operator<(const Mall& m) {
+        return this->nrMagazine < m.nrMagazine;
+    }
+
+    void operator+=(float suprafataDeAdaugat) {
+        this->suprafata += suprafataDeAdaugat;
+    }
+
+    bool operator!() {
+        return this->suprafata > 0;
+    }
+
+    float operator()(float valoareDeAdaugat) {
+        return this->suprafata + valoareDeAdaugat;
+    }
+
+    float& operator[](int index) {
+        if (index >= 0 && index < this->nrMagazine &&
+            this->vectorChirii != nullptr) {
+            return this->vectorChirii[index];
+        }
+        else {
+            throw exception();
+        }
+    }
+
+    friend void operator<<(ostream& out, Mall m);
+
+    friend void operator>>(istream& in, Mall& m);
+
+    Mall operator++(int) {
+        Mall copie = *this;
+        this->suprafata++;
+
+        return copie;
+    }
+
+    Mall operator++() {
+        this->suprafata++;
+
+        return *this;
+    }
+
+    explicit operator int() {
+        return this->nrMagazine;
+    }
+};
+
+int Mall::nrMalluri = 0;
+
+void operator<<(ostream& out, Mall m) {
+    out << endl << "Operator de afisare: ";
+    out << endl << "Id: " << m.id;
+    out << endl << "Denumire: " << m.denumire;
+    out << endl << "Suprafata: " << m.suprafata << " mp";
+    out << endl << "Zona: ";
+
+    if (m.zona == CENTRALA) out << "CENTRALA";
+    if (m.zona == PERIFERICA) out << "PERIFERICA";
+
+    out << endl << "Nr magazine: " << m.nrMagazine;
+
+    if (m.vectorChirii != nullptr && m.nrMagazine > 0) {
+        out << endl << "Vector chirii: ";
+
+        for (int i = 0; i < m.nrMagazine - 1; i++) {
+            out << m.vectorChirii[i] << " euro, ";
+        }
+
+        out << m.vectorChirii[m.nrMagazine - 1] << " euro.";
+    }
+}
+
+void operator>>(istream& in, Mall& m) {
+    cout << endl << "Suprafata: ";
+    in >> m.suprafata;
+
+    cout << endl << "Denumire: ";
+    in >> m.denumire;
+
+    cout << endl << "Zona (1-CENTRALA / 2-PERIFERICA): ";
+    int zona;
+    in >> zona;
+
+    if (zona == 1) {
+        m.zona = CENTRALA;
+    }
+    else if (zona == 2) {
+        m.zona = PERIFERICA;
+    }
+
+    cout << endl << "Nr magazine: ";
+    in >> m.nrMagazine;
+
+    if (m.vectorChirii != nullptr) {
+        delete[] m.vectorChirii;
+        m.vectorChirii = nullptr;
+    }
+
+    if (m.nrMagazine > 0) {
+        m.vectorChirii = new float[m.nrMagazine];
+
+        cout << endl << "Vector chirii: ";
+
+        for (int i = 0; i < m.nrMagazine; i++) {
+            cout << endl << "vectorChirii[" << i << "]: ";
+            in >> m.vectorChirii[i];
+        }
+    }
+}
+
+int main() {
+    Mall mallDefault;
+
+    mallDefault += 50000;
+
+    if (!mallDefault) {
+        cout << endl << "Suprafata pozitiva!";
+    }
+    else {
+        cout << endl << "Suprafata zero!";
+    }
+
+    cout << endl << "Apel operator functie: "
+         << mallDefault(10000);
+
+    cout << mallDefault;
+
+    Mall mall1 = mallDefault++;
+
+    cout << endl << "Postincrementare:";
+    cout << mall1;
+    cout << mallDefault;
+
+    Mall mall2 = ++mallDefault;
+
+    cout << endl << "Preincrementare:";
+    cout << mall2;
+    cout << mallDefault;
+
+    float* chirii = new float[3] {2500, 3200, 1800};
+
+    Mall* pMall = new Mall(
+        7, 90000, "AFICotroceni",
+        CENTRALA, 3, chirii
+    );
+
+    delete[] chirii;
+
+    pMall->afisareMall();
+
+    if (mallDefault < *pMall) {
+        cout << endl << "Mall-ul Default are mai putine magazine!";
+    }
+    else {
+        cout << endl << "AFI Cotroceni are mai putine magazine sau acelasi numar!";
+    }
+
+    (*pMall)[0] = 2700;
+
+    cout << endl << "Chiria modificata: "
+         << (*pMall)[0];
+
+    cout << endl << "Am construit "
+         << Mall::nrMalluri << " mall-uri!";
+
+    cout << endl << "Numar magazine: "
+         << (int)(*pMall);
+
+    delete pMall;
+
+    return 0;
+}
